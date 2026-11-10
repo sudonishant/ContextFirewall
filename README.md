@@ -105,6 +105,18 @@ This runs the MCP client locally; the example sends requests to the hosted backe
 
 Full client setup and privacy notes are in [`mcp/README.md`](mcp/README.md).
 
+### Hosted demo safety
+
+The hosted URLs above are a shared demonstration deployment, not a private
+memory store. Anonymous clients can read the public `demo` namespace, while
+writes and private namespaces require an API key issued by the console. Do not
+send real source code, credentials, customer data, or other sensitive prompts
+to the shared endpoint. For private use, run the backend yourself, set
+`CF_API_BASE` to that instance, and configure a local model/embedding endpoint
+if you need prompts and memories to remain on your machine. The local profile
+uses SQLite/LanceDB and Cognee's default graph; it is not automatically a
+production deployment.
+
 ---
 
 ## Built on Cognee's full memory lifecycle
@@ -211,6 +223,33 @@ npm run dev
 ```
 
 For local dev you only need a Hugging Face API key; Cognee uses local file stores. Set the Postgres/pgvector/Neo4j variables and the same code externalizes storage.
+
+### Verify the checkout
+
+The backend unit suite is offline and is the lowest-cost way to validate changes
+to the firewall. From the repository root:
+
+```bash
+cd backend
+python -m pip install -r requirements.txt pytest
+PYTHONPATH=. python -m pytest -q
+```
+
+The frontend checks are the same commands used by CI after `npm ci`:
+
+```bash
+cd frontend
+npm ci
+npm run lint
+npx tsc --noEmit
+npm run build
+```
+
+These checks do not prove that a hosted Cognee deployment, external database,
+or model provider is available. The end-to-end scripts under
+`backend/scripts/` and `mcp/tests/test_mcp.py` can contact live services when
+explicitly run with their required environment and endpoint configuration; do
+not use them with production data unless you intend to write to that service.
 
 ---
 
